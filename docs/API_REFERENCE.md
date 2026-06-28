@@ -363,6 +363,20 @@ Invalidate the current session.
 wss://api.example.com/ws
 ```
 
+### Origin validation
+
+The WebSocket server only accepts browser upgrade requests whose `Origin`
+header exactly matches an approved origin. Configure approved origins with the
+`MARKET_WS_ALLOWED_ORIGINS` environment variable:
+
+```sh
+MARKET_WS_ALLOWED_ORIGINS="https://app.example.com,https://admin.example.com"
+```
+
+When the variable is unset, the server permits local-development origins only:
+`http://localhost:3000`, `http://localhost:5173`, `http://127.0.0.1:3000`, and
+`http://127.0.0.1:5173`. Missing or malformed `Origin` headers are rejected.
+
 ### Authentication
 
 Send an authentication message after connecting:

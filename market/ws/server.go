@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,16 +20,25 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  4096,
 	WriteBufferSize: 4096,
-	CheckOrigin:     func(r *http.Request) bool { return true },
+	CheckOrigin:     checkOrigin,
+}
+
+const allowedOriginsEnv = "MARKET_WS_ALLOWED_ORIGINS"
+
+var defaultAllowedOrigins = []string{
+	"http://localhost:3000",
+	"http://localhost:5173",
+	"http://127.0.0.1:3000",
+	"http://127.0.0.1:5173",
 }
 
 type Client struct {
-	hub      *Hub
-	conn     *websocket.Conn
-	send     chan []byte
-	subs     map[types.Symbol]struct{}
-	remote   string
-	mu       sync.Mutex
+	hub    *Hub
+	conn   *websocket.Conn
+	send   chan []byte
+	subs   map[types.Symbol]struct{}
+	remote string
+	mu     sync.Mutex
 }
 
 type Hub struct {
@@ -102,6 +114,44 @@ func NewServer(hub *Hub, engine *matching.MatchingEngine, logger *zap.Logger, po
 		logger: logger,
 		port:   port,
 	}
+}
+
+func checkOrigin(r *http.Request) bool {
+	origin := strings.TrimSpace(r.Header.Get("Origin"))
+	if origin == "" {
+		return false
+	}
+
+	parsed, err := url.Parse(origin)
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return false
+	}
+
+	for _, allowed := range configuredAllowedOrigins() {
+		if origin == allowed {
+			return true
+		}
+	}
+
+	return false
+}
+
+func configuredAllowedOrigins() []string {
+	raw := strings.TrimSpace(os.Getenv(allowedOriginsEnv))
+	if raw == "" {
+		return defaultAllowedOrigins
+	}
+
+	parts := strings.Split(raw, ",")
+	origins := make([]string, 0, len(parts))
+	for _, part := range parts {
+		origin := strings.TrimSpace(part)
+		if origin != "" {
+			origins = append(origins, origin)
+		}
+	}
+
+	return origins
 }
 
 func (s *Server) Start() error {
