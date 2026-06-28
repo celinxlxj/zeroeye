@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-06-28T15:04:21.523441+00:00",
+  "commit": "d5121416",
+  "diagnostic_logd": "diagnostic/build-d5121416.logd",
+  "diagnostic_logd_error": null,
+  "message_blocker": null,
+  "chunked": false,
+  "chunk_size_bytes": null,
+  "password": "9f382372dd96ea473b7f",
+  "decrypt_command": "encryptly unpack diagnostic/build-d5121416.logd <outdir> --password 9f382372dd96ea473b7f",
+  "total_modules": 1,
+  "passed": 1,
+  "failed": 0,
+  "modules": [
+    {
+      "name": "market",
+      "status": "PASS",
+      "elapsed_seconds": 0.477,
+      "artifact": "/Users/aho/Documents/Codex/2026-06-28/bug/work/bounties/zeroeye/market/market",
+      "output": ""
+    }
+  ],
+  "pr_note": "Include the encrypted diagnostic logd artifact(s): diagnostic/build-d5121416.logd. The encrypted .logd is the required diagnostic content for PR review; this JSON file is metadata. Maintainers may ask you to remove these diagnostic artifacts before merging."
+}
